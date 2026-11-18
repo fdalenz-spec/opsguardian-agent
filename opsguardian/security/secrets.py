@@ -39,9 +39,9 @@ class SecretProvider:
         self._config = config
         self._cache: dict[str, str] = {}
         self._metadata: dict[str, SecretMetadata] = {}
-        self._sm_client: object | None = None
+        self._sm_client: Any = None
 
-    def _get_secret_manager_client(self) -> object:
+    def _get_secret_manager_client(self) -> Any:
         if self._sm_client is not None:
             return self._sm_client
         try:
@@ -90,7 +90,7 @@ class SecretProvider:
             resource_name = (
                 f"projects/{self._config.gcp_project_id}/secrets/{secret_id}/versions/{version}"
             )
-            response = client.access_secret_version(request={"name": resource_name})  # type: ignore[attr-defined]
+            response = client.access_secret_version(request={"name": resource_name})
             value = str(response.payload.data.decode("utf-8")).strip()
             self._cache[cache_key] = value
             self._metadata[secret_id] = SecretMetadata(

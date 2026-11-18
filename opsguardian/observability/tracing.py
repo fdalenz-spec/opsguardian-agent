@@ -20,7 +20,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager, suppress
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from opsguardian.config import OpsGuardianConfig
 from opsguardian.observability.logging import get_logger
@@ -40,14 +40,15 @@ try:
 
     HAS_OTEL = True
 except ImportError:  # pragma: no cover - fallback only when opentelemetry is absent
-    otel_trace = None  # type: ignore[assignment]
-    Resource = None  # type: ignore[misc]
-    TracerProvider = None  # type: ignore[misc]
-    BatchSpanProcessor = None  # type: ignore[misc]
-    ConsoleSpanExporter = None  # type: ignore[misc]
-    SimpleSpanProcessor = None  # type: ignore[misc]
-    InMemorySpanExporter = None  # type: ignore[misc]
     HAS_OTEL = False
+    if not TYPE_CHECKING:
+        otel_trace = None
+        Resource = None
+        TracerProvider = None
+        BatchSpanProcessor = None
+        ConsoleSpanExporter = None
+        SimpleSpanProcessor = None
+        InMemorySpanExporter = None
 
 
 @dataclass
