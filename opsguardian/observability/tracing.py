@@ -115,6 +115,14 @@ _IN_MEMORY_EXPORTER: Any = None
 _TRACING_CONFIGURED = False
 
 
+def _ensure_in_memory_exporter(provider: Any) -> None:
+    """Attach an ``InMemorySpanExporter`` once to the active SDK ``TracerProvider``."""
+    global _IN_MEMORY_EXPORTER
+    if isinstance(provider, TracerProvider) and _IN_MEMORY_EXPORTER is None:
+        _IN_MEMORY_EXPORTER = InMemorySpanExporter()
+        provider.add_span_processor(SimpleSpanProcessor(_IN_MEMORY_EXPORTER))
+
+
 def configure_tracing(
     config: OpsGuardianConfig,
     *,
@@ -130,7 +138,7 @@ def configure_tracing(
     Returns:
         The configured OpenTelemetry ``Tracer`` (or local fallback tracer).
     """
-    global _IN_MEMORY_EXPORTER, _TRACING_CONFIGURED
+    global _TRACING_CONFIGURED
 
     if not HAS_OTEL:
         logger.log_event(
@@ -139,6 +147,13 @@ def configure_tracing(
         )
         _TRACING_CONFIGURED = True
         return _FALLBACK_TRACER
+
+    existing_provider = otel_trace.get_tracer_provider()
+    if isinstance(existing_provider, TracerProvider):
+        if capture_in_memory:
+            _ensure_in_memory_exporter(existing_provider)
+        _TRACING_CONFIGURED = True
+        return otel_trace.get_tracer(config.app_name, "1.0.0")
 
     resource = Resource.create(
         {
@@ -185,11 +200,9 @@ def configure_tracing(
     if config.otel_console_export:
         provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))
 
-    if capture_in_memory:
-        _IN_MEMORY_EXPORTER = InMemorySpanExporter()
-        provider.add_span_processor(SimpleSpanProcessor(_IN_MEMORY_EXPORTER))
-
     otel_trace.set_tracer_provider(provider)
+    if capture_in_memory:
+        _ensure_in_memory_exporter(otel_trace.get_tracer_provider())
     _TRACING_CONFIGURED = True
     return otel_trace.get_tracer(config.app_name, "1.0.0")
 
