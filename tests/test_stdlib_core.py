@@ -164,7 +164,21 @@ class TestStdlibCore(unittest.TestCase):
         )
         spans = get_captured_spans()
         self.assertEqual(len(spans), 2)
-        self.assertEqual(spans[0].parent_span_id, spans[1].span_id)
+        by_name = {s.name: s for s in spans}
+        root_span = by_name["root"]
+        child_span = by_name["child"]
+        root_span_id = (
+            root_span.context.span_id
+            if getattr(root_span, "context", None) is not None
+            else root_span.span_id
+        )
+        child_parent_id = (
+            child_span.parent.span_id
+            if getattr(child_span, "parent", None) is not None
+            else child_span.parent_span_id
+        )
+        self.assertIsNotNone(child_parent_id)
+        self.assertEqual(child_parent_id, root_span_id)
 
     def test_secret_provider_env_and_missing(self) -> None:
         os.environ["OPS_TEST_SECRET_KEY"] = "synthetic-val-99"
