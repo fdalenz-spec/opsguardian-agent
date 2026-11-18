@@ -141,14 +141,13 @@ class TestStdlibCore(unittest.TestCase):
         clear_captured_spans()
         tracer = get_tracer("opsguardian.stdlib")
 
-        with tracer.start_as_current_span("root"):
-            with tracer.start_as_current_span("child"):
-                log.log_event(
-                    "tool.intent",
-                    "Testing alert for jane@example.com",
-                    trace_id="1" * 32,
-                    span_id="2" * 16,
-                )
+        with tracer.start_as_current_span("root"), tracer.start_as_current_span("child"):
+            log.log_event(
+                "tool.intent",
+                "Testing alert for jane@example.com",
+                trace_id="1" * 32,
+                span_id="2" * 16,
+            )
 
         lines = [line for line in buf.getvalue().splitlines() if line.strip()]
         parsed_records = [json.loads(line) for line in lines]

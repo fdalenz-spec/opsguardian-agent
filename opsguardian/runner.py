@@ -63,8 +63,8 @@ async def run_turn(
             hint = getattr(confirmation, "hint", "Approve pending high-stakes action?")
             _write_ui(f"\n[HITL APPROVAL GATE] {hint}")
             if auto_approve is None:
-                answer = input("Approve execution? [y/N]: ").strip().lower()
-                approved = answer in {"y", "yes"}
+                raw_answer = await asyncio.to_thread(input, "Approve execution? [y/N]: ")
+                approved = raw_answer.strip().lower() in {"y", "yes"}
             else:
                 approved = auto_approve
 
@@ -137,7 +137,8 @@ async def run_interactive(session_id: str | None = None, user_id: str = "sre-onc
 
     try:
         while True:
-            user_input = input("\nsre> ").strip()
+            raw_input = await asyncio.to_thread(input, "\nsre> ")
+            user_input = raw_input.strip()
             if not user_input:
                 continue
             if user_input.lower() in {"exit", "quit"}:

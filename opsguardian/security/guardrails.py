@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from opsguardian.config import OpsGuardianConfig
 from opsguardian.observability.logging import get_logger
@@ -248,7 +248,7 @@ def build_policy_guardrail_plugin(
 
         async def before_model_callback(
             self, *, callback_context: CallbackContext, llm_request: LlmRequest
-        ) -> Optional[LlmResponse]:
+        ) -> LlmResponse | None:
             for content in getattr(llm_request, "contents", []) or []:
                 role = getattr(content, "role", "")
                 if role != "user":
@@ -289,7 +289,7 @@ def build_policy_guardrail_plugin(
             tool: BaseTool,
             tool_args: dict[str, Any],
             tool_context: ToolContext,
-        ) -> Optional[dict[str, Any]]:
+        ) -> dict[str, Any] | None:
             decision = self.evaluator.evaluate_tool_call(tool.name, tool_args)
             if not decision.allowed:
                 logger.log_event(
@@ -326,7 +326,7 @@ def build_policy_guardrail_plugin(
             tool_args: dict[str, Any],
             tool_context: ToolContext,
             result: dict[str, Any],
-        ) -> Optional[dict[str, Any]]:
+        ) -> dict[str, Any] | None:
             if not isinstance(result, dict):
                 return None
             modified = False
@@ -357,7 +357,7 @@ def build_policy_guardrail_plugin(
 
         async def after_model_callback(
             self, *, callback_context: CallbackContext, llm_response: LlmResponse
-        ) -> Optional[LlmResponse]:
+        ) -> LlmResponse | None:
             content = getattr(llm_response, "content", None)
             parts = getattr(content, "parts", None) if content else None
             if not parts:

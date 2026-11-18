@@ -177,7 +177,7 @@ class AsyncMemoryConsolidator:
                 )
                 return result
 
-    async def flush(self, timeout: float = 10.0) -> list[ConsolidationJobResult]:
+    async def flush(self, timeout: float = 10.0) -> list[ConsolidationJobResult]:  # noqa: ASYNC109
         """Await all in-flight background memory tasks prior to graceful shutdown."""
         if not self._tasks:
             return []

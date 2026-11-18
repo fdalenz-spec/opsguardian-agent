@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from opsguardian.config import OpsGuardianConfig
 from opsguardian.observability.logging import get_logger
@@ -182,7 +182,7 @@ def build_dynamic_routing_plugin(config: OpsGuardianConfig) -> Any:
 
         async def before_model_callback(
             self, *, callback_context: CallbackContext, llm_request: LlmRequest
-        ) -> Optional[LlmResponse]:
+        ) -> LlmResponse | None:
             agent_name = getattr(callback_context, "agent_name", "unknown")
             state = getattr(callback_context, "state", {}) or {}
             text_chunks: list[str] = []

@@ -17,7 +17,7 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from google.adk.agents.base_agent import BaseAgent
 from google.adk.agents.callback_context import CallbackContext
@@ -65,7 +65,7 @@ class ObservabilityIntentOutcomePlugin(BasePlugin):
 
     async def before_agent_callback(
         self, *, agent: BaseAgent, callback_context: CallbackContext
-    ) -> Optional[types.Content]:
+    ) -> types.Content | None:
         action_id = f"agt-{uuid.uuid4().hex[:12]}"
         inv_id = getattr(callback_context, "invocation_id", "unknown")
         key = f"{inv_id}:{agent.name}"
@@ -111,7 +111,7 @@ class ObservabilityIntentOutcomePlugin(BasePlugin):
 
     async def after_agent_callback(
         self, *, agent: BaseAgent, callback_context: CallbackContext
-    ) -> Optional[types.Content]:
+    ) -> types.Content | None:
         inv_id = getattr(callback_context, "invocation_id", "unknown")
         key = f"{inv_id}:{agent.name}"
         pending = self._pending_agents.pop(key, None)
@@ -153,7 +153,7 @@ class ObservabilityIntentOutcomePlugin(BasePlugin):
 
     async def before_model_callback(
         self, *, callback_context: CallbackContext, llm_request: LlmRequest
-    ) -> Optional[LlmResponse]:
+    ) -> LlmResponse | None:
         trace_id, span_id = get_current_trace_context()
         model_name = getattr(llm_request, "model", "unknown")
         agent_name = getattr(callback_context, "agent_name", "unknown")
@@ -170,7 +170,7 @@ class ObservabilityIntentOutcomePlugin(BasePlugin):
 
     async def after_model_callback(
         self, *, callback_context: CallbackContext, llm_response: LlmResponse
-    ) -> Optional[LlmResponse]:
+    ) -> LlmResponse | None:
         trace_id, span_id = get_current_trace_context()
         usage = getattr(llm_response, "usage_metadata", None)
         agent_name = getattr(callback_context, "agent_name", "unknown")
@@ -192,7 +192,7 @@ class ObservabilityIntentOutcomePlugin(BasePlugin):
         tool: BaseTool,
         tool_args: dict[str, Any],
         tool_context: ToolContext,
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         action_id = f"tool-{uuid.uuid4().hex[:12]}"
         scrubbed_args, redacted_count = self._redactor.redact_structure(tool_args)
         key = self._tool_key(tool, tool_context)
@@ -250,7 +250,7 @@ class ObservabilityIntentOutcomePlugin(BasePlugin):
         tool_args: dict[str, Any],
         tool_context: ToolContext,
         result: dict[str, Any],
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         key = self._tool_key(tool, tool_context)
         pending = self._pending_tools.pop(key, None)
         duration_ms = (
@@ -312,7 +312,7 @@ class ObservabilityIntentOutcomePlugin(BasePlugin):
         tool_args: dict[str, Any],
         tool_context: ToolContext,
         error: Exception,
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Convert unexpected tool exceptions into guided recovery envelopes & log outcome."""
         key = self._tool_key(tool, tool_context)
         pending = self._pending_tools.pop(key, None)

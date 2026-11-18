@@ -14,7 +14,7 @@ import logging
 import re
 import sqlite3
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -502,7 +502,7 @@ class KnowledgeStore:
         pii_redacted_count: int = 0,
     ) -> int:
         """Persist a PII-scrubbed episodic incident summary into SQLite (and Firestore if enabled)."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         if self._config.knowledge_backend == "firestore" and self._config.gcp_project_id:
             try:
                 from google.cloud import firestore  # type: ignore[import-untyped]
@@ -519,8 +519,17 @@ class KnowledgeStore:
                         "created_at": now,
                     }
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.log_event(
+                    "knowledge.firestore_sync_failed",
+                    (
+                        "Firestore episodic memory sync failed; falling back to SQLite: "
+                        f"{type(exc).__name__}"
+                    ),
+                    level=logging.WARNING,
+                    session_id=session_id,
+                    service_name=service_name,
+                )
 
         with self._connect() as conn:
             cur = conn.execute(

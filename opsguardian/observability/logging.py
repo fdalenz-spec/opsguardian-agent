@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from opsguardian.security.pii_redactor import PiiRedactor
@@ -77,7 +77,7 @@ class StructuredJsonFormatter(logging.Formatter):
         event_type = scrubbed_extra.pop("event_type", "runtime.log")
 
         payload: dict[str, Any] = {
-            "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
             "severity": record.levelname,
             "service": self._service_name,
             "logger": record.name,

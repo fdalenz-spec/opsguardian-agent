@@ -88,9 +88,9 @@ class OpsGuardianConfig:
     otel_console_export: bool = False
 
     # Secret Manager Secret IDs (NEVER store literal API keys here)
-    secret_name_gemini_api_key: str = "opsguardian-gemini-api-key"
-    secret_name_pagerduty_token: str = "opsguardian-pagerduty-token"
-    secret_name_slack_webhook: str = "opsguardian-slack-webhook"
+    secret_name_gemini_api_key: str = "opsguardian-gemini-api-key"  # noqa: S105
+    secret_name_pagerduty_token: str = "opsguardian-pagerduty-token"  # noqa: S105
+    secret_name_slack_webhook: str = "opsguardian-slack-webhook"  # noqa: S105
 
     @classmethod
     def from_env(cls) -> OpsGuardianConfig:

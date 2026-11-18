@@ -16,10 +16,11 @@ Supports:
 from __future__ import annotations
 
 import uuid
-from contextlib import contextmanager
+from collections.abc import Iterator
+from contextlib import contextmanager, suppress
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Iterator
+from datetime import UTC, datetime
+from typing import Any
 
 from opsguardian.config import OpsGuardianConfig
 from opsguardian.observability.logging import get_logger
@@ -57,7 +58,7 @@ class LocalSpanRecord:
     trace_id: str
     span_id: str
     parent_span_id: str | None = None
-    start_time: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    start_time: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     end_time: str | None = None
     attributes: dict[str, Any] = field(default_factory=dict)
     status: str = "OK"
@@ -97,7 +98,7 @@ class _LocalFallbackTracer:
             span.record_exception(exc)
             raise
         finally:
-            span.end_time = datetime.now(timezone.utc).isoformat()
+            span.end_time = datetime.now(UTC).isoformat()
             self._stack.pop()
             self.spans.append(span)
 
@@ -171,7 +172,7 @@ def configure_tracing(
             )
 
     if config.otlp_endpoint:
-        try:
+        with suppress(ImportError):
             from opentelemetry.exporter.otlp.proto.http.trace_exporter import (  # type: ignore[import-untyped]
                 OTLPSpanExporter,
             )
@@ -179,8 +180,6 @@ def configure_tracing(
             provider.add_span_processor(
                 BatchSpanProcessor(OTLPSpanExporter(endpoint=config.otlp_endpoint))
             )
-        except ImportError:
-            pass
 
     if config.otel_console_export:
         provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))

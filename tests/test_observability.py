@@ -53,10 +53,12 @@ def test_distributed_tracing_links_parent_and_child_spans(
     clear_captured_spans()
     tracer = get_tracer("opsguardian.test")
 
-    with tracer.start_as_current_span("opsguardian.invocation"):
-        with tracer.start_as_current_span("opsguardian.agent.coordinator"):
-            with tracer.start_as_current_span("opsguardian.tool.fetch_service_error_logs"):
-                pass
+    with (
+        tracer.start_as_current_span("opsguardian.invocation"),
+        tracer.start_as_current_span("opsguardian.agent.coordinator"),
+        tracer.start_as_current_span("opsguardian.tool.fetch_service_error_logs"),
+    ):
+        pass
 
     spans = get_captured_spans()
     names = [s.name for s in spans]

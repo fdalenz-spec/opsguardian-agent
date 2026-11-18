@@ -14,7 +14,8 @@ Every mutating or alerting action enforces TWO complementary HITL safety layers
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from contextlib import suppress
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import ValidationError
@@ -61,14 +62,12 @@ def _check_hitl_confirmation(
             "Approve (`confirmed=True`) to execute or reject (`confirmed=False`) to abort."
         )
         if tool_context is not None and hasattr(tool_context, "request_confirmation"):
-            try:
+            # ValueError occurs only in unit tests without function_call_id attached.
+            with suppress(ValueError):
                 tool_context.request_confirmation(
                     hint=hint,
                     payload=confirmation_payload,
                 )
-            except ValueError:
-                # Occurs only in unit tests calling tool without function_call_id attached.
-                pass
 
         logger.log_event(
             "hitl.approval_requested",
@@ -185,7 +184,7 @@ def rollback_cloud_run_revision(
                 f"for '{validated.service_name}'."
             ),
             recovery_instructions=(
-                "Never guess a revision ID. Select a verified revision from `valid_options` "
+                "Never guess a revision ID. Choose a verified revision in `valid_options` "
                 f"(recommended last-known-good: '{history['last_known_good_revision']}') "
                 "and re-request human approval."
             ),
@@ -214,7 +213,7 @@ def rollback_cloud_run_revision(
     record = {
         "audit_id": audit_id,
         "action": "rollback_cloud_run_revision",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "previous_revision": history["active_revision"],
         "target_revision": validated.target_revision,
         "traffic_percent": validated.traffic_percent,
@@ -308,7 +307,7 @@ def scale_cloud_run_instances(
     record = {
         "audit_id": audit_id,
         "action": "scale_cloud_run_instances",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         **validated.model_dump(),
     }
     EXECUTION_AUDIT_LOG.append(record)
@@ -396,7 +395,7 @@ def page_oncall_incident_commander(
     record = {
         "audit_id": audit_id,
         "action": "page_oncall_incident_commander",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "delivery_mode": delivery_mode,
         "secret_configured": bool(pd_token),
         **validated.model_dump(),
@@ -478,7 +477,7 @@ def create_critical_incident_ticket(
     record = {
         "ticket_id": ticket_id,
         "action": "create_critical_incident_ticket",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         **validated.model_dump(),
     }
     EXECUTION_AUDIT_LOG.append(record)

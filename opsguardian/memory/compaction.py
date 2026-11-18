@@ -15,8 +15,9 @@ Combines three complementary Google ADK context optimization controls (Criterion
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import Any
 
 from opsguardian.config import OpsGuardianConfig
 from opsguardian.observability.logging import get_logger

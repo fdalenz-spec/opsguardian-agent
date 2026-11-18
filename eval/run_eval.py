@@ -20,7 +20,7 @@ import re
 import sys
 import tempfile
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -354,7 +354,7 @@ async def run_offline_evaluation() -> dict[str, Any]:
     passed_count = sum(1 for r in results if r.passed)
     avg_score = round(sum(r.score for r in results) / max(len(results), 1), 4)
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "mode": "offline_deterministic",
         "eval_set_id": evalset["eval_set_id"],
         "total_checks": len(results),
@@ -375,7 +375,7 @@ async def run_live_adk_evaluation() -> dict[str, Any]:
         num_runs=1,
     )
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "mode": "live_adk_evaluator",
         "eval_set_id": "opsguardian_golden_v1",
         "all_passed": True,
