@@ -1,0 +1,49 @@
+# Google Cloud Agent Starter Pack & ADK CLI deployment manifest
+# Compatible with:
+#   - `adk web .` / `adk run opsguardian` / `adk eval` / `adk deploy cloud_run`
+#   - `uvx agent-starter-pack enhance .` (https://github.com/GoogleCloudPlatform/agent-starter-pack)
+#   - `agents-cli info` / `agents-cli deploy`
+
+app_name: opsguardian
+version: "1.0.0"
+framework: google-adk
+language: python
+entrypoint: opsguardian.agent:app
+root_agent: opsguardian.agent:root_agent
+
+deployment_targets:
+  cloud_run:
+    command: >-
+      adk deploy cloud_run
+      --project=${GOOGLE_CLOUD_PROJECT}
+      --region=${GOOGLE_CLOUD_LOCATION:-us-central1}
+      --service_name=opsguardian-agent
+      --app_name=opsguardian
+      --with_ui
+      opsguardian
+    service_account: opsguardian-agent-sa
+    min_instances: 1
+    max_instances: 10
+    trace_to_cloud: true
+
+  agent_engine:
+    command: >-
+      python deployment/deploy_agent_engine.py
+      --project=${GOOGLE_CLOUD_PROJECT}
+      --location=${GOOGLE_CLOUD_LOCATION:-us-central1}
+    session_service: VertexAiSessionService
+    memory_service: VertexAiMemoryBankService
+
+observability:
+  structured_logging: json
+  tracing: opentelemetry
+  exporter: google-cloud-trace
+  pii_redaction: cloud-dlp-with-local-fallback
+
+evaluation:
+  evalset: eval/opsguardian.evalset.json
+  config: eval/eval_config.json
+  cli_command: >-
+    adk eval opsguardian eval/opsguardian.evalset.json
+    --config_file_path eval/eval_config.json
+    --print_detailed_results

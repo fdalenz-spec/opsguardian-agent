@@ -1,0 +1,88 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "opsguardian"
+version = "1.0.0"
+description = "Enterprise Cloud SRE Incident Triage & Remediation Multi-Agent System built with Google ADK."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [
+    { name = "OpsGuardian Contributors" }
+]
+keywords = ["google-adk", "ai-agents", "sre", "observability", "opentelemetry", "agentops", "vertex-ai"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "google-adk[db,eval]>=1.18.0,<3.0.0",
+    "google-genai>=1.14.0",
+    "pydantic>=2.9.0,<3.0.0",
+    "aiosqlite>=0.20.0",
+    "opentelemetry-api>=1.27.0",
+    "opentelemetry-sdk>=1.27.0",
+    "opentelemetry-exporter-otlp-proto-http>=1.27.0",
+    "python-dotenv>=1.0.1",
+]
+
+[project.optional-dependencies]
+gcp = [
+    "google-adk[gcp]>=1.18.0,<3.0.0",
+    "google-cloud-secret-manager>=2.21.0",
+    "google-cloud-dlp>=3.25.0",
+    "google-cloud-firestore>=2.19.0",
+    "google-cloud-discoveryengine>=0.13.0",
+    "google-cloud-modelarmor>=0.1.0",
+    "google-cloud-aiplatform[adk,agent_engines]>=1.88.0",
+    "opentelemetry-exporter-gcp-trace>=1.7.0",
+    "asyncpg>=0.29.0",
+]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.7.0",
+    "mypy>=1.12.0",
+    "types-PyYAML>=6.0.12",
+]
+
+[project.scripts]
+opsguardian-demo = "opsguardian.demo_cli:main"
+opsguardian-run = "opsguardian.runner:main"
+opsguardian-eval = "eval.run_eval:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["opsguardian"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "S", "ASYNC"]
+ignore = [
+    "S101",  # assert allowed in tests
+    "E501",  # line length handled by formatter for prompt strings
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "S105", "S106"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --tb=short"

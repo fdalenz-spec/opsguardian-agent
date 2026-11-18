@@ -1,0 +1,14 @@
+# Copy to terraform.tfvars (gitignored) and set your target GCP project values.
+# Never commit real secret values or credentials to version control.
+
+project_id         = "my-gcp-sandbox-project"
+region             = "us-central1"
+environment        = "dev"
+container_image    = "us-central1-docker.pkg.dev/my-gcp-sandbox-project/opsguardian/opsguardian:latest"
+fast_model         = "gemini-2.5-flash"
+reasoning_model    = "gemini-2.5-pro"
+min_instances      = 1
+max_instances      = 10
+enable_cloud_dlp   = true
+enable_model_armor = false
+firestore_location = "us-central1"

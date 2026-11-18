@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local secrets & environment files (NEVER commit .env!)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+service-account*.json
+credentials*.json
+
+# Local runtime state & databases
+*.db
+*.db-journal
+*.db-wal
+*.sqlite3
+data/
+.adk/
+eval/reports/*.json
+!eval/opsguardian.evalset.json
+!eval/eval_config.json
+
+# Terraform state & local variable overrides
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+!terraform/terraform.tfvars.example
+terraform/.terraform.lock.hcl
+
+# OS & IDEs
+.DS_Store
+.vscode/
+.idea/
+*.swp
