@@ -16,6 +16,7 @@ Implements layered defense-in-depth (Criterion: Guardrails & Policy Plugins):
 
 from __future__ import annotations
 
+import importlib
 import logging
 import re
 from dataclasses import dataclass, field
@@ -96,7 +97,7 @@ class GuardrailEvaluator:
         ):
             return None
         try:
-            from google.cloud import modelarmor_v1  # type: ignore[import-untyped]
+            modelarmor_v1: Any = importlib.import_module("google.cloud.modelarmor_v1")
 
             if self._model_armor_client is None:
                 self._model_armor_client = modelarmor_v1.ModelArmorClient()
@@ -359,7 +360,9 @@ def build_policy_guardrail_plugin(
             self, *, callback_context: CallbackContext, llm_response: LlmResponse
         ) -> LlmResponse | None:
             content = getattr(llm_response, "content", None)
-            parts = getattr(content, "parts", None) if content else None
+            if content is None:
+                return None
+            parts = getattr(content, "parts", None)
             if not parts:
                 return None
             changed = False

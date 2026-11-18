@@ -9,6 +9,7 @@ Stores:
 
 from __future__ import annotations
 
+import importlib
 import json
 import logging
 import re
@@ -331,7 +332,7 @@ class KnowledgeStore:
         ):
             return None
         try:
-            from google.cloud import discoveryengine_v1 as discoveryengine  # type: ignore[import-untyped]
+            discoveryengine: Any = importlib.import_module("google.cloud.discoveryengine_v1")
 
             client = discoveryengine.SearchServiceClient()
             serving_config = (
@@ -377,7 +378,7 @@ class KnowledgeStore:
         if self._config.knowledge_backend != "firestore" or not self._config.gcp_project_id:
             return None
         try:
-            from google.cloud import firestore  # type: ignore[import-untyped]
+            firestore: Any = importlib.import_module("google.cloud.firestore")
 
             db = firestore.Client(project=self._config.gcp_project_id)
             ref = db.collection("opsguardian_postmortems")
@@ -505,7 +506,7 @@ class KnowledgeStore:
         now = datetime.now(UTC).isoformat()
         if self._config.knowledge_backend == "firestore" and self._config.gcp_project_id:
             try:
-                from google.cloud import firestore  # type: ignore[import-untyped]
+                firestore: Any = importlib.import_module("google.cloud.firestore")
 
                 db = firestore.Client(project=self._config.gcp_project_id)
                 db.collection("opsguardian_episodic_memories").add(

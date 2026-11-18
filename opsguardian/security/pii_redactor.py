@@ -11,6 +11,7 @@ Used across all three sensitive boundaries (Criterion: PII Redaction):
 
 from __future__ import annotations
 
+import importlib
 import re
 from dataclasses import dataclass, field
 from typing import Any
@@ -114,7 +115,7 @@ class PiiRedactor:
 
     def _get_dlp_client(self) -> Any:
         if self._dlp_client is None:
-            from google.cloud import dlp_v2  # type: ignore[import-untyped]
+            dlp_v2: Any = importlib.import_module("google.cloud.dlp_v2")
 
             self._dlp_client = dlp_v2.DlpServiceClient()
         return self._dlp_client

@@ -11,8 +11,10 @@ Design guarantees (Criterion: Secure Secret Management):
 from __future__ import annotations
 
 import hashlib
+import importlib
 import os
 from dataclasses import dataclass
+from typing import Any
 
 from opsguardian.config import OpsGuardianConfig
 
@@ -43,7 +45,7 @@ class SecretProvider:
         if self._sm_client is not None:
             return self._sm_client
         try:
-            from google.cloud import secretmanager  # type: ignore[import-untyped]
+            secretmanager: Any = importlib.import_module("google.cloud.secretmanager")
         except ImportError as exc:
             raise SecretNotConfiguredError(
                 "google-cloud-secret-manager is not installed. Install optional extras "
@@ -89,7 +91,7 @@ class SecretProvider:
                 f"projects/{self._config.gcp_project_id}/secrets/{secret_id}/versions/{version}"
             )
             response = client.access_secret_version(request={"name": resource_name})  # type: ignore[attr-defined]
-            value = response.payload.data.decode("utf-8").strip()
+            value = str(response.payload.data.decode("utf-8")).strip()
             self._cache[cache_key] = value
             self._metadata[secret_id] = SecretMetadata(
                 secret_name=secret_id,

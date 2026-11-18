@@ -41,12 +41,12 @@ try:
     HAS_OTEL = True
 except ImportError:  # pragma: no cover - fallback only when opentelemetry is absent
     otel_trace = None  # type: ignore[assignment]
-    Resource = None  # type: ignore[assignment]
-    TracerProvider = None  # type: ignore[assignment]
-    BatchSpanProcessor = None  # type: ignore[assignment]
-    ConsoleSpanExporter = None  # type: ignore[assignment]
-    SimpleSpanProcessor = None  # type: ignore[assignment]
-    InMemorySpanExporter = None  # type: ignore[assignment]
+    Resource = None  # type: ignore[misc]
+    TracerProvider = None  # type: ignore[misc]
+    BatchSpanProcessor = None  # type: ignore[misc]
+    ConsoleSpanExporter = None  # type: ignore[misc]
+    SimpleSpanProcessor = None  # type: ignore[misc]
+    InMemorySpanExporter = None  # type: ignore[misc]
     HAS_OTEL = False
 
 
