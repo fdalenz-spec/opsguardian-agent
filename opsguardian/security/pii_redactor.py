@@ -130,7 +130,7 @@ class PiiRedactor:
             inspect_config = {
                 "info_types": [{"name": t} for t in _CLOUD_DLP_INFO_TYPES],
             }
-            deidentify_config = {
+            deidentify_config: dict[str, Any] = {
                 "info_type_transformations": {
                     "transformations": [
                         {
