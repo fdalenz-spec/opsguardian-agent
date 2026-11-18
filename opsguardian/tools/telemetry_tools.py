@@ -112,9 +112,7 @@ def fetch_service_error_logs(
             limit=limit,
         )
     except ValidationError as exc:
-        return _validation_error_envelope(
-            "fetch_service_error_logs", exc, list(SYNTHETIC_SERVICES)
-        )
+        return _validation_error_envelope("fetch_service_error_logs", exc, list(SYNTHETIC_SERVICES))
 
     raw_entries = RAW_ERROR_LOGS.get(validated.service_name)
     if raw_entries is None:
@@ -215,9 +213,7 @@ def list_recent_deployments(
             max_revisions=max_revisions,
         )
     except ValidationError as exc:
-        return _validation_error_envelope(
-            "list_recent_deployments", exc, list(SYNTHETIC_SERVICES)
-        )
+        return _validation_error_envelope("list_recent_deployments", exc, list(SYNTHETIC_SERVICES))
 
     history = DEPLOYMENT_HISTORY.get(validated.service_name)
     if history is None:

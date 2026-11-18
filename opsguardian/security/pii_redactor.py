@@ -133,11 +133,7 @@ class PiiRedactor:
             deidentify_config = {
                 "info_type_transformations": {
                     "transformations": [
-                        {
-                            "primitive_transformation": {
-                                "replace_with_info_type_config": {}
-                            }
-                        }
+                        {"primitive_transformation": {"replace_with_info_type_config": {}}}
                     ]
                 }
             }
@@ -182,6 +178,7 @@ class PiiRedactor:
         # Always run deterministic local pass as defense-in-depth (even after Cloud DLP).
         for label, pattern in _REDACTION_PATTERNS:
             if label == "BEARER_TOKEN":
+
                 def _replace_bearer(match: re.Match[str]) -> str:
                     nonlocal total
                     total += 1
@@ -190,6 +187,7 @@ class PiiRedactor:
 
                 current = pattern.sub(_replace_bearer, current)
             elif label == "API_SECRET":
+
                 def _replace_secret(match: re.Match[str]) -> str:
                     val = match.group(2)
                     if val.startswith("[REDACTED_"):
@@ -201,6 +199,7 @@ class PiiRedactor:
 
                 current = pattern.sub(_replace_secret, current)
             elif label == "CREDIT_CARD_CANDIDATE":
+
                 def _replace_cc(match: re.Match[str]) -> str:
                     raw = match.group(0)
                     digits = re.sub(r"[ -]", "", raw)
@@ -213,6 +212,7 @@ class PiiRedactor:
 
                 current = pattern.sub(_replace_cc, current)
             else:
+
                 def _replace_generic(match: re.Match[str], tag: str = label) -> str:
                     nonlocal total
                     total += 1

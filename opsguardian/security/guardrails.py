@@ -31,19 +31,27 @@ logger = get_logger("security.guardrails")
 _INJECTION_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "ignore_previous_instructions",
-        re.compile(r"(?i)\bignore\s+(all\s+)?(previous|prior|above)\s+(instructions|rules|prompts)\b"),
+        re.compile(
+            r"(?i)\bignore\s+(all\s+)?(previous|prior|above)\s+(instructions|rules|prompts)\b"
+        ),
     ),
     (
         "bypass_hitl_confirmation",
-        re.compile(r"(?i)\b(skip|bypass|disable|override)\s+(human|hitl|user)?\s*(confirmation|approval|guardrails?)\b"),
+        re.compile(
+            r"(?i)\b(skip|bypass|disable|override)\s+(human|hitl|user)?\s*(confirmation|approval|guardrails?)\b"
+        ),
     ),
     (
         "system_prompt_exfiltration",
-        re.compile(r"(?i)\b(reveal|print|dump|exfiltrate)\s+(your\s+)?(system\s+prompt|secrets?|api[_\s-]?keys?|env\s+vars?)\b"),
+        re.compile(
+            r"(?i)\b(reveal|print|dump|exfiltrate)\s+(your\s+)?(system\s+prompt|secrets?|api[_\s-]?keys?|env\s+vars?)\b"
+        ),
     ),
     (
         "role_jailbreak",
-        re.compile(r"(?i)\b(you\s+are\s+now\s+in\s+developer\s+mode|pretend\s+there\s+are\s+no\s+rules|DAN\s+mode)\b"),
+        re.compile(
+            r"(?i)\b(you\s+are\s+now\s+in\s+developer\s+mode|pretend\s+there\s+are\s+no\s+rules|DAN\s+mode)\b"
+        ),
     ),
     (
         "shell_or_destructive_override",
@@ -129,7 +137,9 @@ class GuardrailEvaluator:
     def evaluate_user_prompt(self, text: str) -> GuardrailDecision:
         """Screen user inputs for prompt injections, jailbreaks, and Model Armor matches."""
         if not text:
-            return GuardrailDecision(allowed=True, policy_name="input_safety", reason="Empty prompt.")
+            return GuardrailDecision(
+                allowed=True, policy_name="input_safety", reason="Empty prompt."
+            )
 
         ma_decision = self._call_model_armor(text)
         if ma_decision is not None and not ma_decision.allowed:
@@ -194,7 +204,10 @@ class GuardrailEvaluator:
 
         if tool_name == "scale_cloud_run_instances":
             max_instances = tool_args.get("max_instances")
-            if isinstance(max_instances, int) and max_instances > self._config.max_cloud_run_instances:
+            if (
+                isinstance(max_instances, int)
+                and max_instances > self._config.max_cloud_run_instances
+            ):
                 return GuardrailDecision(
                     allowed=False,
                     policy_name="blast_radius_cap",

@@ -92,19 +92,29 @@ async def run_dry_run_demo(*, json_logs: bool = False) -> dict[str, Any]:
             blocked = guardrails.evaluate_user_prompt(adversarial_prompt)
             _emit("\n[1/7] GUARDRAIL CHECK — Adversarial Prompt Injection")
             _emit(f"  Input  : {adversarial_prompt}")
-            _emit(f"  Allowed: {blocked.allowed} | Policy: {blocked.policy_name} | Rules: {blocked.matched_rules}")
+            _emit(
+                f"  Allowed: {blocked.allowed} | Policy: {blocked.policy_name} | Rules: {blocked.matched_rules}"
+            )
 
             # 2. Strategic Model Routing + Dynamic Escalation
-            user_query = "Investigate SEV-1 cascading 503 outage affecting checkout-api and auth-service."
+            user_query = (
+                "Investigate SEV-1 cascading 503 outage affecting checkout-api and auth-service."
+            )
             coord_route = router.evaluate_turn_routing(
                 "opsguardian_coordinator", user_query, session_severity="SEV-1"
             )
             collector_route = router.evaluate_turn_routing("log_collector_agent", user_query)
             synth_route = router.evaluate_turn_routing("root_cause_synthesizer_agent", user_query)
             _emit("\n[2/7] STRATEGIC MODEL ROUTING (Flash vs. Pro + Dynamic Escalation)")
-            _emit(f"  log_collector_agent          -> {collector_route.selected_model} ({collector_route.tier})")
-            _emit(f"  root_cause_synthesizer_agent -> {synth_route.selected_model} ({synth_route.tier})")
-            _emit(f"  opsguardian_coordinator      -> {coord_route.selected_model} (escalated={coord_route.escalated})")
+            _emit(
+                f"  log_collector_agent          -> {collector_route.selected_model} ({collector_route.tier})"
+            )
+            _emit(
+                f"  root_cause_synthesizer_agent -> {synth_route.selected_model} ({synth_route.tier})"
+            )
+            _emit(
+                f"  opsguardian_coordinator      -> {coord_route.selected_model} (escalated={coord_route.escalated})"
+            )
 
             # 3. Parallel telemetry fan-out + PII redaction + Indirect Injection Sanitization
             _emit("\n[3/7] PARALLEL TELEMETRY COLLECTION + PII & INDIRECT INJECTION SCRUBBING")
@@ -148,7 +158,9 @@ async def run_dry_run_demo(*, json_logs: bool = False) -> dict[str, Any]:
                     )
                     runbook = store.get_runbook("checkout-api")
 
-            _emit(f"  Raw PII tokens scrubbed     : {total_pii} (emails, RFC-5737 IPs, phone, synthetic JWT)")
+            _emit(
+                f"  Raw PII tokens scrubbed     : {total_pii} (emails, RFC-5737 IPs, phone, synthetic JWT)"
+            )
             _emit(f"  Indirect injections blocked : {neutralized_count}")
             _emit(f"  Sample redacted log         : {scrubbed_logs[0][:110]}...")
             _emit(
@@ -162,8 +174,12 @@ async def run_dry_run_demo(*, json_logs: bool = False) -> dict[str, Any]:
 
             # 4. Guided Error Handling Demo
             _emit("\n[4/7] GUIDED ERROR HANDLING & RECOVERY")
-            _emit("  Requesting invalid service 'nonexistent-svc' -> returns structured recovery_instructions")
-            _emit("  (error_code=SERVICE_NOT_FOUND, valid_options=['checkout-api', 'auth-service', ...])")
+            _emit(
+                "  Requesting invalid service 'nonexistent-svc' -> returns structured recovery_instructions"
+            )
+            _emit(
+                "  (error_code=SERVICE_NOT_FOUND, valid_options=['checkout-api', 'auth-service', ...])"
+            )
 
             # 5. History Compaction
             fake_history = [
@@ -178,7 +194,11 @@ async def run_dry_run_demo(*, json_logs: bool = False) -> dict[str, Any]:
                 for i in range(10)
             ]
             compacted = compact_history_window(
-                fake_history, token_threshold=200, retain_last_n=3, overlap_size=1, redactor=redactor
+                fake_history,
+                token_threshold=200,
+                retain_last_n=3,
+                overlap_size=1,
+                redactor=redactor,
             )
             _emit("\n[5/7] HISTORY COMPACTION (Sliding Window + Token Threshold + PII Scrub)")
             _emit(
@@ -217,7 +237,9 @@ async def run_dry_run_demo(*, json_logs: bool = False) -> dict[str, Any]:
             _emit("  Phase A (No confirmation) -> status='pending_approval' (PAUSED safely)")
             _emit("  Phase B (Rejected)        -> status='rejected' (0 production changes)")
             _emit("  Phase C (Approved)        -> status='success' (executed with audit_id)")
-            _emit(f"  Secrets audited           : {len(secrets.get_audit_summary())} hardcoded keys = 0")
+            _emit(
+                f"  Secrets audited           : {len(secrets.get_audit_summary())} hardcoded keys = 0"
+            )
 
         spans = get_captured_spans()
         _emit(f"\n  Distributed Trace ID      : {trace_id}")

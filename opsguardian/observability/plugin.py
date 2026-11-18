@@ -263,7 +263,11 @@ class ObservabilityIntentOutcomePlugin(BasePlugin):
             if isinstance(scrubbed_result, dict)
             else "success"
         )
-        if isinstance(scrubbed_result, dict) and "error" in scrubbed_result and outcome_status == "success":
+        if (
+            isinstance(scrubbed_result, dict)
+            and "error" in scrubbed_result
+            and outcome_status == "success"
+        ):
             outcome_status = "error"
         matches_intent = outcome_status in {"success", "pending_approval"}
         trace_id, span_id = get_current_trace_context()

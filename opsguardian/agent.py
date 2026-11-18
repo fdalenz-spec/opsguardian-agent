@@ -35,7 +35,9 @@ from opsguardian.tools.knowledge_tools import set_knowledge_store
 load_dotenv(override=False)
 
 
-def build_opsguardian_app(config: OpsGuardianConfig | None = None) -> tuple[App, AsyncMemoryConsolidator]:
+def build_opsguardian_app(
+    config: OpsGuardianConfig | None = None,
+) -> tuple[App, AsyncMemoryConsolidator]:
     """Assemble the complete ADK ``App`` with plugins, compaction, caching, and resumability."""
     cfg = config or OpsGuardianConfig.from_env()
     cfg.ensure_local_data_dirs()

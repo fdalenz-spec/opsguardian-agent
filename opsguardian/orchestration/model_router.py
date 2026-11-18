@@ -155,9 +155,7 @@ class ModelRouter:
             role: {
                 "tier": tier,
                 "model": (
-                    self._config.reasoning_model
-                    if tier == "reasoning"
-                    else self._config.fast_model
+                    self._config.reasoning_model if tier == "reasoning" else self._config.fast_model
                 ),
             }
             for role, tier in _ROLE_TIER_MAP.items()

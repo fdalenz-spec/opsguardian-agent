@@ -321,9 +321,7 @@ class KnowledgeStore:
                     )
             conn.commit()
 
-    def _search_vertex_ai_search(
-        self, query: str, max_results: int
-    ) -> list[dict[str, Any]] | None:
+    def _search_vertex_ai_search(self, query: str, max_results: int) -> list[dict[str, Any]] | None:
         """Optional Google Cloud Vertex AI Search (Discovery Engine) query path."""
         if (
             self._config.knowledge_backend != "vertex_search"
@@ -588,7 +586,9 @@ class KnowledgeStore:
     def list_known_services(self) -> list[str]:
         """Return all services that have runbooks registered in persistent storage."""
         with self._connect() as conn:
-            rows = conn.execute("SELECT service_name FROM runbooks ORDER BY service_name").fetchall()
+            rows = conn.execute(
+                "SELECT service_name FROM runbooks ORDER BY service_name"
+            ).fetchall()
             return [str(r["service_name"]) for r in rows]
 
     def export_seed_summary(self) -> dict[str, Any]:

@@ -106,7 +106,9 @@ class FetchServiceErrorLogsOutput(StrictSchema):
     service_name: str
     lookback_minutes: int
     total_matching_entries: int = Field(ge=0)
-    pii_redacted_count: int = Field(ge=0, description="Number of PII tokens scrubbed before return.")
+    pii_redacted_count: int = Field(
+        ge=0, description="Number of PII tokens scrubbed before return."
+    )
     entries: list[LogEntryRecord] = Field(default_factory=list)
 
 
@@ -224,7 +226,9 @@ class SearchPastPostmortemsOutput(StrictSchema):
     """Validated output schema for ``search_past_postmortems``."""
 
     status: Literal["success"] = "success"
-    backend: str = Field(..., description="Backing store used (sqlite_fts5, firestore, vertex_search).")
+    backend: str = Field(
+        ..., description="Backing store used (sqlite_fts5, firestore, vertex_search)."
+    )
     query: str
     matches: list[PostmortemMatch] = Field(default_factory=list)
 
@@ -365,7 +369,9 @@ class EvidenceCitation(StrictSchema):
     """Ground-truth citation linking a claim back to a specific tool observation."""
 
     source: Literal["error_logs", "slo_metrics", "deployments", "postmortem", "runbook"]
-    reference_id: str = Field(..., description="Trace ID, revision ID, postmortem ID, or metric name.")
+    reference_id: str = Field(
+        ..., description="Trace ID, revision ID, postmortem ID, or metric name."
+    )
     summary: str = Field(..., description="Observed fact supporting the root-cause analysis.")
 
 

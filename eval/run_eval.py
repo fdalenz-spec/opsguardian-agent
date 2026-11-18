@@ -87,7 +87,9 @@ def _audit_repo_security_and_hygiene() -> list[EvalCheckResult]:
             category="infrastructure_and_security",
             passed=len(secret_findings) == 0,
             score=1.0 if not secret_findings else 0.0,
-            details="Zero hardcoded secrets found." if not secret_findings else f"Hits: {secret_findings}",
+            details="Zero hardcoded secrets found."
+            if not secret_findings
+            else f"Hits: {secret_findings}",
         )
     )
 
@@ -208,10 +210,15 @@ async def run_offline_evaluation() -> dict[str, Any]:
             and "555-014-8821" not in scrub.redacted_text
             and scrub.redaction_count >= 4
         )
-        _, pm_hits = store.search_postmortems("503 connection pool exhausted", service_name="checkout-api")
+        _, pm_hits = store.search_postmortems(
+            "503 connection pool exhausted", service_name="checkout-api"
+        )
         pm_match = bool(pm_hits and pm_hits[0]["postmortem_id"] == "PM-2025-104")
         sev_match = SLO_METRICS["checkout-api"]["estimated_severity"] == "SEV-1"
-        lkg_match = DEPLOYMENT_HISTORY["checkout-api"]["last_known_good_revision"] == "checkout-api-00041-b7c"
+        lkg_match = (
+            DEPLOYMENT_HISTORY["checkout-api"]["last_known_good_revision"]
+            == "checkout-api-00041-b7c"
+        )
         results.append(
             EvalCheckResult(
                 check_id="golden_case_sev1_checkout_api",
@@ -227,7 +234,9 @@ async def run_offline_evaluation() -> dict[str, Any]:
         )
 
         # Golden Case 2: auth-service OOMKilled correlation
-        _, auth_pms = store.search_postmortems("OOMKilled exit 137 JWKS", service_name="auth-service")
+        _, auth_pms = store.search_postmortems(
+            "OOMKilled exit 137 JWKS", service_name="auth-service"
+        )
         auth_ok = bool(
             auth_pms
             and auth_pms[0]["postmortem_id"] == "PM-2025-089"
@@ -309,7 +318,9 @@ async def run_offline_evaluation() -> dict[str, Any]:
             }
             for i in range(10)
         ]
-        comp = compact_history_window(events, token_threshold=150, retain_last_n=3, redactor=redactor)
+        comp = compact_history_window(
+            events, token_threshold=150, retain_last_n=3, redactor=redactor
+        )
         comp_ok = (
             comp.compacted_event_count > 0
             and comp.estimated_tokens_after < comp.estimated_tokens_before
